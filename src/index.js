@@ -10,6 +10,7 @@ import App from "./App";
 import { createHttpLink } from "apollo-link-http";
 import { ApolloClient, InMemoryCache } from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
+import { typeDefs, resolvers } from "../src/graphql/resolvers";
 
 // establish the connection to our backend
 const httpLink = createHttpLink({
@@ -17,7 +18,7 @@ const httpLink = createHttpLink({
   uri: "https://crwn-clothing.com",
 });
 
-// create our cache
+// create our cache which is the local storage
 const cache = new InMemoryCache();
 
 // make the client
@@ -26,6 +27,16 @@ const client = new ApolloClient({
   link: httpLink,
   // cache goes to cache
   cache,
+  typeDefs,
+  resolvers,
+});
+
+client.writeData({
+  // the val of data will be the obj that has all the keys that we're trying to store
+  data: {
+    // cartdropdown hidden value
+    cartHidden: true,
+  },
 });
 
 ReactDOM.render(
