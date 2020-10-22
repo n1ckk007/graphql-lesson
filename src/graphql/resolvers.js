@@ -1,12 +1,17 @@
 // obj that we can pass to our client that lets it know what vals to resolve
 // depending on what mutations/queries get called from the local client side
-
 import { gql } from "apollo-boost";
+import { addItemToCart } from "./cart.utils";
 
 // type definitions should be capitalized
 export const typeDefs = gql`
+  extend type Item {
+    quantity: Int
+  }
+
   extend type Mutation {
     ToggleCartHidden: Boolean!
+    AddItemToCart(item: Item!): [Item]!
   }
 `;
 // read from our cache the initial value and flip it everytime it gets called
@@ -14,6 +19,12 @@ export const typeDefs = gql`
 const GET_CART_HIDDEN = gql`
   {
     cartHidden @client
+  }
+`;
+
+const GET_CART_ITEMS = gql`
+  {
+    cartItems @client
   }
 `;
 
@@ -32,6 +43,22 @@ export const resolvers = {
         data: { cartHidden: !cartHidden },
       });
       return !cartHidden;
+    },
+    // {item} is the _args, plucking it off of args obj
+    addItemToCart: (_root, { item }, { cache }) => {
+      // get the cartItems off of the cache state
+      const { cartItems } = cache.readQuery({
+        query: GET_CART_ITEMS,
+      });
+      // our func where we add item to cart passing in our existing items aswell as new item we're trying to add
+      const newCartItems = addItemToCart(cartItems, item);
+
+      cache.writeQuery({
+        query: GET_CART_ITEMS,
+        // now the data updates cartItems to our newCartItems
+        data: { cartItems: newCartItems },
+      });
+      return newCartItems;
     },
   },
 };

@@ -36,6 +36,8 @@ client.writeData({
   data: {
     // cartdropdown hidden value
     cartHidden: true,
+    // as it was in the cart reducer
+    cartItems: [],
   },
 });
 
