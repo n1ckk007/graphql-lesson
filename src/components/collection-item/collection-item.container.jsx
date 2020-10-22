@@ -1,7 +1,6 @@
 import { gql } from "apollo-boost";
 import React from "react";
 import { Mutation } from "react-apollo";
-import { addItemToCart } from "../../redux/cart/cart.utils";
 import CollectionItem from "./collection-item.component";
 
 const ADD_ITEM_TO_CART = gql`
