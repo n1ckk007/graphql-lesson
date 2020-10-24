@@ -1,6 +1,7 @@
 import { gql } from "apollo-boost";
 import React from "react";
-import { Mutation } from "react-apollo";
+import { graphql } from "react-apollo";
+import { flowRight } from "lodash";
 
 import CartIcon from "./cart-icon.component";
 
@@ -12,10 +13,32 @@ const TOGGLE_CART_HIDDEN = gql`
   }
 `;
 
-const CartIconContainer = () => (
-  <Mutation mutation={TOGGLE_CART_HIDDEN}>
-    {(toggleCartHidden) => <CartIcon toggleCartHidden={toggleCartHidden} />}
-  </Mutation>
+const GET_ITEM_COUNT = gql`
+  {
+    itemCount @client
+  }
+`;
+
+// log props to see what we're getting back
+const CartIconContainer = ({ data: { itemCount }, toggleCartHidden }) => (
+  <CartIcon toggleCartHidden={toggleCartHidden} itemCount={itemCount} />
 );
 
-export default CartIconContainer;
+// const CartIconContainer = () => (
+//   <Query query={GET_ITEM_COUNT}>
+//     {({ data: { itemCount } }) => (
+//       <Mutation mutation={TOGGLE_CART_HIDDEN}>
+//         {(toggleCartHidden) => (
+//           <CartIcon toggleCartHidden={toggleCartHidden} itemCount={itemCount} />
+//         )}
+//       </Mutation>
+//     )}
+//   </Query>
+// );
+
+// flowright takes mutations and queries and it binds them to some component we can pass as the outcome of that func cos its a HOC
+export default flowRight(
+  // will have access to data obj inside of the props that the container gets & that data will have the itemCount property
+  graphql(GET_ITEM_COUNT),
+  graphql(TOGGLE_CART_HIDDEN, { name: "toggleCartHidden" })
+)(CartIconContainer);

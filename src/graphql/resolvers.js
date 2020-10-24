@@ -1,7 +1,7 @@
 // obj that we can pass to our client that lets it know what vals to resolve
 // depending on what mutations/queries get called from the local client side
 import { gql } from "apollo-boost";
-import { addItemToCart } from "./cart.utils";
+import { addItemToCart, getCartItemCount } from "./cart.utils";
 
 // type definitions should be capitalized
 export const typeDefs = gql`
@@ -19,6 +19,12 @@ export const typeDefs = gql`
 const GET_CART_HIDDEN = gql`
   {
     cartHidden @client
+  }
+`;
+
+const GET_ITEM_COUNT = gql`
+  {
+    itemCount @client
   }
 `;
 
@@ -52,6 +58,12 @@ export const resolvers = {
       });
       // our func where we add item to cart passing in our existing items aswell as new item we're trying to add
       const newCartItems = addItemToCart(cartItems, item);
+
+      cache.writeQuery({
+        query: GET_ITEM_COUNT,
+        // whenever the item gets added to cart it will also update our item count query
+        data: { itemCount: getCartItemCount(newCartItems) },
+      });
 
       cache.writeQuery({
         query: GET_CART_ITEMS,

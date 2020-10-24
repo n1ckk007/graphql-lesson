@@ -38,6 +38,8 @@ client.writeData({
     cartHidden: true,
     // as it was in the cart reducer
     cartItems: [],
+    // count of the total items in cart
+    itemCount: 0,
   },
 });
 
